@@ -1,39 +1,69 @@
 import { useEffect, useState } from "react";
 import apiCall from "../utils/apiCall";
 import { Link } from "react-router";
+import { useAuth } from "../context/auth";
+import { orders } from "../../../backend/temp_data";
 
 const Orders = () => {
-  const [orders, setOrders] = useState(null);
+  const { user } = useAuth();
+  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [editId, setEditId] = useState(false);
+  const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    async function fetchOrders() {
+    (async () => {
       try {
-        const orders = await apiCall("/orders", { method: "GET" });
-
-        setOrders(orders);
-      } catch (error) {
-        setError(error);
+        const res = await apiCall("/orders", { method: "GET" });
+        setData(res);
+      } catch (e) {
+        setError(e);
       }
-    }
-
-    fetchOrders();
+    })();
   }, []);
+
+  const handleSave = (id) => {
+    const order = orders.find((o) => o.id === id);
+    order.status = status;
+    setData(data.map((d) => (d.id === id ? { ...d, status } : d)));
+
+    setEditId(null);
+    setStatus(null);
+  };
+
   return (
     <>
       <h1>Orders</h1>
-      {orders &&
-        orders.map((o) => (
-          <div key={o.id}>
-            <div className="flex gap-2">
-              <span>{o.id}</span>
-              <span>{o.user_id}</span>
+      <div>
+        {data?.map((o) => (
+          <div key={o.id} className="flex gap-2 items-center">
+            <span>{o.id}</span>
+            <span>{o.user_id}</span>
+            {editId === o.id ? (
+              <select
+                defaultValue={o.status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option value="paid">paid</option>
+                <option value="pending">pending</option>
+              </select>
+            ) : (
               <span>{o.status}</span>
-              <span>{o.createdAt}</span>
-            </div>
+            )}
+            <span>{o.createdAt}</span>
+            {user?.isAdmin && (
+              <button
+                onClick={() =>
+                  editId === o.id ? handleSave(o.id) : setEditId(o.id)
+                }
+              >
+                {editId === o.id ? "Save" : "Edit"}
+              </button>
+            )}
           </div>
         ))}
-      {error && <p>{error}</p>}
+      </div>
+      {error && <p>{error.toString()}</p>}
       <Link to="/">Home</Link>
     </>
   );
