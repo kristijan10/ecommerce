@@ -21,6 +21,8 @@ const Home = () => {
           )}
           <Link to="/orders">porudzbine</Link>
           <br />
+          <Link to="/cart">korpa</Link>
+          <br />
           <button onClick={logout}>Logout</button>
         </>
       ) : (

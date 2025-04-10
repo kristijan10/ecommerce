@@ -30,6 +30,7 @@ router.post("/", roleMiddleware, (req, res) => {
     );
 
   products.push({
+    id: products.length,
     name,
     desc,
     price,
