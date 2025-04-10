@@ -13,10 +13,12 @@ const Home = () => {
   return (
     <>
       <h1>Admin panel</h1>
-      {user && user.isAdmin && (
+      {user?.isAdmin && (
         <>
           <h2>Zdravo, {user.username}</h2>
           <Link to="/products">proizvodi</Link>
+          <br />
+          <Link to="/products/new">dodaj novi proizvod</Link>
           <br />
           <Link to="/orders">porudzbine</Link>
           <br />

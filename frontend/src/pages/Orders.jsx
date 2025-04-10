@@ -33,38 +33,61 @@ const Orders = () => {
 
   return (
     <>
-      <h1>Orders</h1>
-      <div>
-        {data?.map((o) => (
-          <div key={o.id} className="flex gap-2 items-center">
-            <span>{o.id}</span>
-            <span>{o.user_id}</span>
-            {editId === o.id ? (
-              <select
-                defaultValue={o.status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="paid">paid</option>
-                <option value="pending">pending</option>
-              </select>
-            ) : (
-              <span>{o.status}</span>
-            )}
-            <span>{o.createdAt}</span>
-            {user?.isAdmin && (
-              <button
-                onClick={() =>
-                  editId === o.id ? handleSave(o.id) : setEditId(o.id)
-                }
-              >
-                {editId === o.id ? "Save" : "Edit"}
-              </button>
-            )}
-          </div>
-        ))}
+      <h1 className="text-2xl font-bold mb-4">Orders</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border border-gray-300">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2 text-left border">id</th>
+              <th className="px-4 py-2 text-left border">user_id</th>
+              <th className="px-4 py-2 text-left border">status</th>
+              <th className="px-4 py-2 text-left border">createdAt</th>
+              {user?.isAdmin && (
+                <th className="px-4 py-2 text-left border">Action</th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {data?.map((o) => (
+              <tr key={o.id} className="border-t">
+                <td className="px-4 py-2 border">{o.id}</td>
+                <td className="px-4 py-2 border">{o.user_id}</td>
+                <td className="px-4 py-2 border">
+                  {editId === o.id ? (
+                    <select
+                      className="border rounded px-2 py-1"
+                      defaultValue={o.status}
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      <option value="paid">paid</option>
+                      <option value="pending">pending</option>
+                    </select>
+                  ) : (
+                    o.status
+                  )}
+                </td>
+                <td className="px-4 py-2 border">{o.createdAt}</td>
+                {user?.isAdmin && (
+                  <td className="px-4 py-2 border">
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={() =>
+                        editId === o.id ? handleSave(o.id) : setEditId(o.id)
+                      }
+                    >
+                      {editId === o.id ? "Save" : "Edit"}
+                    </button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      {error && <p>{error.toString()}</p>}
-      <Link to="/">Home</Link>
+      {error && <p className="text-red-600 mt-4">{error.toString()}</p>}
+      <Link className="inline-block mt-4 text-blue-500 hover:underline" to="/">
+        Home
+      </Link>
     </>
   );
 };
