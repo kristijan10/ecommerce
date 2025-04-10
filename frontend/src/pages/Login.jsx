@@ -11,49 +11,62 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await apiCall("/auth/login", {
         method: "POST",
         body: JSON.stringify(data),
       });
-      setStatus(response.message);
-
       login(response.token);
+      setStatus(null);
       navigate("/");
     } catch (error) {
       setStatus(error.message);
     }
   };
 
-  const handleChange = (e) => {
-    setData({
-      ...data,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleChange = (e) =>
+    setData({ ...data, [e.target.name]: e.target.value });
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white text-black rounded-lg shadow-lg p-6 w-full max-w-md"
+      >
+        <h2 className="text-xl font-bold text-blue-600 mb-6 text-center">
+          Prijava
+        </h2>
+
         {["username", "password"].map((field) => (
-          <div key={field}>
-            <label htmlFor={field}>{field}: </label>
+          <div key={field} className="mb-4">
+            <label
+              htmlFor={field}
+              className="block font-medium mb-1 capitalize"
+            >
+              {field}
+            </label>
             <input
               type={field === "password" ? "password" : "text"}
               name={field}
               id={field}
               value={data[field]}
               onChange={handleChange}
+              required
+              className="w-full border rounded px-3 py-2"
             />
           </div>
         ))}
 
-        <button type="submit">Login</button>
-      </form>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded mt-2"
+        >
+          Login
+        </button>
 
-      {status && <p>{status}</p>}
-    </>
+        {status && <p className="text-red-600 text-center mt-4">{status}</p>}
+      </form>
+    </div>
   );
 };
 

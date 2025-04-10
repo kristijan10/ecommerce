@@ -19,15 +19,26 @@ const Products = () => {
   }, []);
 
   return (
-    <>
-      <h1 className="text-2xl capitalize">products</h1>
-      <div className="flex gap-5">
-        {data && data.map((d) => <ProductCard data={d} key={d.id} />)}
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-2xl font-bold text-blue-600 mb-6 text-center">
+          Proizvodi
+        </h1>
+
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {data && data.map((d) => <ProductCard data={d} key={d.id} />)}
+        </div>
+
+        <Link
+          to="/"
+          className="mt-10 block text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+        >
+          Nazad na početnu
+        </Link>
       </div>
-      {error && <p>{error}</p>}
-      <Link to="/">home</Link>
-      <br />
-    </>
+    </div>
   );
 };
 
