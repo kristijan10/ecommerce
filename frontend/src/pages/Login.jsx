@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/auth";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import apiCall from "../utils/apiCall";
 
 const Login = () => {
@@ -63,6 +63,13 @@ const Login = () => {
         >
           Login
         </button>
+
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Nemaš nalog?{" "}
+          <Link to="/register" className="text-blue-600 hover:underline">
+            Registruj se
+          </Link>
+        </p>
 
         {status && <p className="text-red-600 text-center mt-4">{status}</p>}
       </form>

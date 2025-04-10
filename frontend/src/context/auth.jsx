@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 // import apiCall from "./apiCall";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import apiCall from "../utils/apiCall";
 
 const AuthContext = createContext();
@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [hasToken, setHasToken] = useState(!!localStorage.getItem("token"));
   const navigate = useNavigate();
+  const location = useLocation();
 
   const login = (token) => {
     localStorage.setItem("token", token);
@@ -37,11 +38,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (!user && hasToken) fetchUser();
-    else if (!user && !hasToken) navigate("/login");
-  }, [hasToken, user]);
+    else if (!user && !hasToken) {
+      const allowedRoutes = ["/login", "/register"];
+      if (!allowedRoutes.includes(location.pathname)) navigate("/login");
+    }
+  }, [hasToken, user, location.pathname]);
 
   return (
-    <AuthContext.Provider value={{ hasToken, user, login, logout }}>
+    <AuthContext.Provider value={{ hasToken, user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

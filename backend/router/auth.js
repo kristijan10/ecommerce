@@ -41,7 +41,7 @@ router.post("/login", async (req, res, next) => {
 
 router.post("/register", async (req, res, next) => {
   try {
-    const { username, email, password, isAdmin = "false" } = req.body;
+    const { username, email, password, isAdmin = false } = req.body;
 
     if (!username || !email || !password)
       throwError(
@@ -58,12 +58,14 @@ router.post("/register", async (req, res, next) => {
         httpStatus.CONFLICT
       );
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = {
+      id: users.length,
       username,
       email,
-      password: hashedPassword,
+      // password: hashedPassword,
+      password,
       isAdmin,
     };
 
