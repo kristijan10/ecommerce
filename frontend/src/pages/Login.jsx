@@ -36,24 +36,18 @@ const Login = () => {
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="username">Username: </label>
-        <input
-          name="username"
-          id="username"
-          placeholder="johndoe"
-          value={data.username}
-          onChange={handleChange}
-        />
-
-        <label htmlFor="password">Password: </label>
-        <input
-          type="password"
-          name="password"
-          id="password"
-          placeholder="******"
-          value={data.password}
-          onChange={handleChange}
-        />
+        {["username", "password"].map((field) => (
+          <div key={field}>
+            <label htmlFor={field}>{field}: </label>
+            <input
+              type={field === "password" ? "password" : "text"}
+              name={field}
+              id={field}
+              value={data[field]}
+              onChange={handleChange}
+            />
+          </div>
+        ))}
 
         <button type="submit">Login</button>
       </form>
