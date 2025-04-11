@@ -1,38 +1,72 @@
-import express from "express"
-import { users } from "../temp_data.js";
+import express from "express";
+// import { users } from "../temp_data.js";
 import roleMiddleware from "../middleware/role.js";
 import throwError from "../utils/throwError.js";
 import httpStatus from "../utils/httpStatus.js";
+import { pool } from "../config.js";
 
 const router = express.Router();
 
-const userExists = (id) => !isNaN(id) && id >= 0 && users.length > id;
+router.get("/me", async (req, res, next) => {
+  try {
+    const id = req?.user?.id;
+    if (!id) throwError("Korisnik nije prijavljen", httpStatus.BAD_REQUEST);
 
-router.get("/me", (req, res) => {
-  const { id } = req.user;
-  const { password, ...user } = users.find((u) => u.id === id);
+    const [[user]] = await pool.execute(
+      "SELECT id, username, email, IF(isAdmin = 1, true, false) AS isAdmin, createdAt, updatedAt FROM users WHERE id = ?",
+      [id]
+    );
+    if (!user)
+      throwError(`Korisnik sa id ${id} ne postoji`, httpStatus.NOT_FOUND);
 
-  res.send(user);
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.get("/", roleMiddleware, (req, res) => { 
-  res.send(users);
+router.get("/", roleMiddleware, async (req, res, next) => {
+  try {
+    const [users] = await pool.execute(
+      "SELECT id, username, email, IF(isAdmin = 1, true, false) AS isAdmin, createdAt, updatedAt FROM users"
+    );
+    res.send(users);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.put("/:id", roleMiddleware, (req, res) => {
-  const id = +req.params.id;
-  if (!userExists(id))
-    throwError(`Nije dobro prosledjen id parametar`, httpStatus.BAD_REQUEST);
+router.put("/:id", roleMiddleware, async (req, res, next) => {
+  try {
+    const id = +req.params.id;
+    if (isNaN(id) || id < 0)
+      throwError(`Neispravan ID`, httpStatus.BAD_REQUEST);
 
-  if (req.user.id === id) throwError("Ne mozes promeniti svoju ulogu", httpStatus.UNPROCESSABLE);
+    if (req.user.id === id)
+      throwError("Ne mozes promeniti svoju ulogu", httpStatus.UNPROCESSABLE);
 
-  const { isAdmin } = req.body;
-  if (typeof isAdmin !== "boolean" ) throwError("{isAdmin: boolean}", httpStatus.BAD_REQUEST);
-  
-  const user = users.find(u => u.id === id);
-  user.isAdmin = isAdmin;
+    const input = req.body;
 
-  res.send({ message: "Uspesno izmenjeno" });
-})
+    const [columns] = await pool.execute("SHOW COLUMNS FROM users");
+    const validColumns = new Set(columns.map((c) => c.Field));
+
+    const keysToUpdate = Object.keys(input).filter(
+      (k) => validColumns.has(k) && k !== "id"
+    );
+    if (!keysToUpdate.length)
+      return res.send({ message: "Nema podataka za izmenu" });
+
+    const setClause = keysToUpdate.map((k) => `${k} = ?`).join(", ");
+    const values = keysToUpdate.map((k) => input[k]);
+
+    values.push(id);
+
+    await pool.execute(`UPDATE users SET ${setClause} WHERE id = ?`, values);
+
+    res.send({ message: "Uspesno izmenjen korisnik" });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

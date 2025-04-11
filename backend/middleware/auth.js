@@ -14,7 +14,7 @@ export default async (req, res, next) => {
     );
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || "tajna");
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
 
     next();
   } catch (error) {

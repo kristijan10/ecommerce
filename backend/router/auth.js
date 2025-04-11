@@ -3,37 +3,34 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import throwError from "../utils/throwError.js";
 import httpStatus from "../utils/httpStatus.js";
-import { users } from "../temp_data.js";
+import { pool } from "../config.js";
 
 const router = express.Router();
+
+const generateToken = ({ id, isAdmin }) =>
+  jwt.sign({ id, isAdmin }, process.env.JWT_SECRET);
 
 router.post("/login", async (req, res, next) => {
   try {
     const { username, password } = req.body;
-
     if (!username || !password)
-      throwError(
-        "{username: string, password: string}",
-        httpStatus.BAD_REQUEST
-      );
+      throwError("{username, password} obavezni", httpStatus.BAD_REQUEST);
 
-    const user = users.find((u) => u.username == username);
-    if (!user)
-      throwError(
-        `Korisnik imena ${username} ne postoji u bazi`,
-        httpStatus.NOT_FOUND
-      );
-
-    const validPassword = user.password === password;
-    if (!validPassword)
-      throwError("Uneta lozinka nije tacna", httpStatus.UNAUTHORIZED);
-
-    const token = jwt.sign(
-      { id: user.id, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET || "tajna"
+    const [[user]] = await pool.execute(
+      `SELECT id, password, IF(isAdmin = 1, true, false) AS isAdmin FROM users WHERE username = ?`,
+      [username]
     );
+    if (!user)
+      throwError(`Korisnik ${username} ne postoji`, httpStatus.NOT_FOUND);
 
-    res.send({ message: "Uspesno prijavljen korisnik", token });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid)
+      throwError(
+        "Korisnicko ime ili lozinka nisu tacni",
+        httpStatus.UNAUTHORIZED
+      );
+
+    res.send({ message: "Uspesna prijava", token: generateToken(user) });
   } catch (error) {
     next(error);
   }
@@ -42,41 +39,33 @@ router.post("/login", async (req, res, next) => {
 router.post("/register", async (req, res, next) => {
   try {
     const { username, email, password, isAdmin = false } = req.body;
-
     if (!username || !email || !password)
       throwError(
-        "{username: string, email: string, password: string, isAdmin?: bool}",
+        "{username, email, password[, isAdmin]} obavezno",
         httpStatus.BAD_REQUEST
       );
 
-    const alreadyExists = users.find(
-      (u) => u.username === username || u.email === email
+    const [exists] = await pool.execute(
+      `SELECT id FROM users WHERE username = ? OR email = ?`,
+      [username, email]
     );
-    if (alreadyExists)
-      throwError(
-        "Korisnik sa unetim podacima vec postoji",
-        httpStatus.CONFLICT
-      );
+    if (exists.length) throwError("Korisnik vec postoji", httpStatus.CONFLICT);
 
-    // const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = {
-      id: users.length,
-      username,
-      email,
-      // password: hashedPassword,
-      password,
-      isAdmin,
-    };
-
-    users.push(user);
-
-    const token = jwt.sign(
-      { id: user.id, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET || "tajna"
+    const hash = await bcrypt.hash(password, 10);
+    await pool.execute(
+      "INSERT INTO users(username, email, password, isAdmin) VALUES(?, ?, ?, ?)",
+      [username, email, hash, isAdmin]
     );
 
-    res.send({ message: "Uspesno registrovan korisnik", token });
+    const [[user]] = await pool.execute(
+      `SELECT id, isAdmin FROM users WHERE username = ?`,
+      [username]
+    );
+
+    res.send({
+      message: "Uspesno registrovan korisnik",
+      token: generateToken(user),
+    });
   } catch (error) {
     next(error);
   }

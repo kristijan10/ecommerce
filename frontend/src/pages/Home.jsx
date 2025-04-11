@@ -32,7 +32,7 @@ const Home = () => {
             Proizvodi
           </Link>
 
-          {user.isAdmin && (
+          {!!user.isAdmin && (
             <Link
               to="/products/new"
               className="bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded"
@@ -48,7 +48,7 @@ const Home = () => {
             Porudžbine
           </Link>
 
-          {user.isAdmin && (
+          {!!user.isAdmin && (
             <Link
               to="/users"
               className="bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded"

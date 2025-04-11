@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import apiCall from "../utils/apiCall";
 import { Link } from "react-router";
 import { useAuth } from "../context/auth";
-import { orders } from "../../../backend/temp_data";
 
 const Orders = () => {
   const { user } = useAuth();
@@ -23,8 +22,8 @@ const Orders = () => {
   }, []);
 
   const handleSave = (id) => {
-    const order = orders.find((o) => o.id === id);
-    order.status = status;
+    // const order = orders.find((o) => o.id === id);
+    // order.status = status;
     setData(data.map((d) => (d.id === id ? { ...d, status } : d)));
     setEditId(null);
     setStatus(null);
