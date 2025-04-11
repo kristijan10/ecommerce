@@ -82,11 +82,4 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
-router.get("/me", (req, res) => {
-  const { id } = req.user;
-  const { password, ...user } = users.find((u) => u.id === id);
-
-  res.send(user);
-});
-
 export default router;

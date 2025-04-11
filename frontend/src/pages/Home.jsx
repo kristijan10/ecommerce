@@ -48,6 +48,15 @@ const Home = () => {
             Porudžbine
           </Link>
 
+          {user.isAdmin && (
+            <Link
+              to="/users"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded"
+            >
+              Korisnici
+            </Link>
+          )}
+
           <Link
             to="/cart"
             className="bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded"

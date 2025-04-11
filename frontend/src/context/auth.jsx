@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const userData = await apiCall("/auth/me", {
+      const userData = await apiCall("/users/me", {
         method: "GET",
       });
       setUser(userData);
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   }, [hasToken, user, location.pathname]);
 
   return (
-    <AuthContext.Provider value={{ hasToken, user, login, register, logout }}>
+    <AuthContext.Provider value={{ hasToken, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

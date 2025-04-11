@@ -5,6 +5,7 @@ import authMiddleware from "./middleware/auth.js";
 import authRouter from "./router/auth.js";
 import productsRouter from "./router/products.js";
 import ordersRouter from "./router/orders.js";
+import usersRouter from "./router/users.js";
 
 const app = express();
 
@@ -24,6 +25,8 @@ app.use("/auth", authRouter);
 app.use("/products", productsRouter);
 
 app.use("/orders", ordersRouter);
+
+app.use("/users", usersRouter);
 
 app.use(errorMiddleware);
 
