@@ -33,7 +33,7 @@ const FormNewProduct = () => {
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {["name", "desc", "price", "imageUrl"].map((field) => (
+          {["name", "description", "price", "imageUrl"].map((field) => (
             <div key={field} className="flex flex-col gap-1">
               <label htmlFor={field} className="capitalize font-medium">
                 {field}:

@@ -44,7 +44,6 @@ router.post("/", async (req, res, next) => {
     ]);
 
     const sql = `INSERT INTO order_items(order_id, product_id, quantity, amount) VALUES${values}`;
-    console.log({ order_items_data, sql, params });
     await pool.execute(sql, params);
 
     res.send({ message: "Uspesno kreirana porudzbina" });

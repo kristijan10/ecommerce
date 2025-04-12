@@ -5,6 +5,8 @@ import { useAuth } from "../context/auth";
 
 /* TODO: dodati dugme pregled, koji bi vodio na posebnu stranicu koja bi prikazivala sav info u vezi sa tom porudzbinom
  kao sto su proizvodi, njhova cena, slika, kada je napravljena porudzbina, kako se placa */
+
+/* TODO: Dodaj dugme za filtraciju rezultata takodje i sortiranje */
 const Orders = () => {
   const { user } = useAuth();
   const [data, setData] = useState(null);
@@ -46,7 +48,9 @@ const Orders = () => {
                 <th className="px-4 py-2 border">Korisnik</th>
                 <th className="px-4 py-2 border">Status</th>
                 <th className="px-4 py-2 border">Datum</th>
-                {user?.isAdmin && <th className="px-4 py-2 border">Akcija</th>}
+                {!!user?.isAdmin && (
+                  <th className="px-4 py-2 border">Akcija</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -69,7 +73,7 @@ const Orders = () => {
                     )}
                   </td>
                   <td className="px-4 py-2 border">{o.createdAt}</td>
-                  {user?.isAdmin && (
+                  {!!user?.isAdmin && (
                     <td className="px-4 py-2 border">
                       <button
                         onClick={() =>

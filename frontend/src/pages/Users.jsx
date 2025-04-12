@@ -66,7 +66,7 @@ const Users = () => {
                   <td className="px-4 py-2 border text-center">
                     <input
                       type="checkbox"
-                      checked={u.isAdmin}
+                      checked={!!u.isAdmin}
                       onChange={() => handleRoleChange(u.id)}
                       className="w-5 h-5 accent-blue-600"
                     />
