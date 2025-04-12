@@ -20,34 +20,34 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// TODO
 router.post("/", async (req, res, next) => {
   try {
-    const { items } = req.body;
+    const { order_data, order_items_data } = req.body;
+    if (!order_items_data?.length || order_data?.user_id < 0)
+      throwError("Nemam dovoljno podataka", httpStatus.BAD_REQUEST);
 
-    const order = {
-      id: orders.length,
-      user_id: req.user.id,
-      status: "pending",
-      createdAt: Date.now(),
-    };
+    // pravim prvo order
+    const [response] = await pool.execute(
+      "INSERT INTO orders(user_id, status) VALUES(?, ?)",
+      [order_data.user_id, order_data?.status || "pending"]
+    );
 
-    items.forEach((i) => {
-      const item = products.find((p) => p.id === i.item_id);
+    const order_id = response.insertId;
 
-      const order_item = {
-        order_id: order.id,
-        product_id: i.item_id,
-        quantity: i.quantity,
-        amount: i.quantity * item.price,
-      };
+    // pa dohvativsi id novonastalog ordera pravim nove order_items
+    const values = order_items_data.map(() => `(?, ?, ?, ?)`);
+    const params = order_items_data.flatMap((i) => [
+      order_id,
+      i.product_id,
+      i.quantity,
+      i.amount,
+    ]);
 
-      order_items.push(order_item);
-    });
+    const sql = `INSERT INTO order_items(order_id, product_id, quantity, amount) VALUES${values}`;
+    console.log({ order_items_data, sql, params });
+    await pool.execute(sql, params);
 
-    orders.push(order);
-
-    res.send({ message: "Uspesno dodata porudzbina", id: order.id });
+    res.send({ message: "Uspesno kreirana porudzbina" });
   } catch (error) {
     next(error);
   }

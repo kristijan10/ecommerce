@@ -3,6 +3,8 @@ import apiCall from "../utils/apiCall";
 import { Link } from "react-router";
 import { useAuth } from "../context/auth";
 
+/* TODO: dodati dugme pregled, koji bi vodio na posebnu stranicu koja bi prikazivala sav info u vezi sa tom porudzbinom
+ kao sto su proizvodi, njhova cena, slika, kada je napravljena porudzbina, kako se placa */
 const Orders = () => {
   const { user } = useAuth();
   const [data, setData] = useState(null);
