@@ -1,5 +1,6 @@
 export default async (path, options = {}) => {
-  const url = (import.meta.env.BACKEND_URL || "http://localhost:8000") + path;
+  const url =
+    (import.meta.env.VITE_BACKEND_URL || "http://localhost:8000") + path;
   // const url = "https://ecommerce-production-c433.up.railway.app" + path;
   const token = localStorage.getItem("token");
   const headers = {
